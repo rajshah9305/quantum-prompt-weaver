@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Prompt Weaver</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at 30% 20%, #1a0b2e 0%, #16213e 25%, #0f3460 50%, #533a7b 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #fff;
+            position: relative;
+        }
+
+        /* Animated Background Particles */
+        .quantum-field {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: linear-gradient(45deg, #64ffda, #7c4dff);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+            opacity: 0.7;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 1; }
+        }
+
+        /* Main Container */
+        .weaver-container {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Floating Header */
+        .quantum-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(16, 20, 40, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(100, 255, 218, 0.2);
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #64ffda, #7c4dff, #ff6b9d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(100, 255, 218, 0.5);
+        }
+
+        .quantum-nav {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-orb {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(100, 255, 218, 0.1), rgba(124, 77, 255, 0.1));
+            border: 1px solid rgba(100, 255, 218, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-size: 0.8rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-orb:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 0 40px rgba(100, 255, 218, 0.4);
+            background: linear-gradient(135deg, rgba(100, 255, 218, 0.2), rgba(124, 77, 255, 0.2));
+        }
+
+        .nav-orb::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(100, 255, 218, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+
+        .nav-orb:hover::before {
+            transform: translateX(100%);
+        }
+
+        /* Main Content Area */
+        .main-canvas {
+            margin-top: 120px;
+            padding: 40px 20px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 40px;
+            min-height: calc(100vh - 120px);
+        }
+
+        /* Left Panel - Technique Bubbles */
+        .technique-constellation {
+            position: relative;
+            height: fit-content;
+        }
+
+        .technique-bubble {
+            position: relative;
+            margin: 20px 0;
+            padding: 25px;
+            background: linear-gradient(135deg, rgba(100, 255, 218, 0.05), rgba(124, 77, 255, 0.05));
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .technique-bubble:hover {
+            transform: translateX(10px) scale(1.02);
+            background: linear-gradient(135deg, rgba(100, 255, 218, 0.1), rgba(124, 77, 255, 0.1));
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .technique-bubble.active {
+            background: linear-gradient(135deg, rgba(100, 255, 218, 0.15), rgba(124, 77, 255, 0.15));
+            border-color: rgba(100, 255, 218, 0.5);
+            transform: translateX(15px) scale(1.05);
+        }
+
+        .technique-title {
+            font-weight: 600;
+            color: #64ffda;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .technique-desc {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.4;
+        }
+
+        /* Center Panel - Prompt Weaver */
+        .prompt-weaver {
+            background: linear-gradient(135deg, rgba(16, 20, 40, 0.8), rgba(30, 30, 60, 0.8));
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            border-radius: 40px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .prompt-weaver::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #64ffda, #7c4dff, transparent);
+            animation: scan 3s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .weaver-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .weaver-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #64ffda, #7c4dff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .prompt-canvas {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(100, 255, 218, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            min-height: 400px;
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .prompt-input {
+            width: 100%;
+            min-height: 300px;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 1.1rem;
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            resize: vertical;
+            outline: none;
+        }
+
+        .prompt-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+            font-style: italic;
+        }
+
+        .enhancement-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            border-radius: 20px;
+            background: linear-gradient(45deg, 
+                rgba(100, 255, 218, 0.02) 0%, 
+                transparent 25%, 
+                rgba(124, 77, 255, 0.02) 50%, 
+                transparent 75%, 
+                rgba(255, 107, 157, 0.02) 100%);
+        }
+
+        .action-crystals {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .crystal-btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, rgba(100, 255, 218, 0.1), rgba(124, 77, 255, 0.1));
+            border: 1px solid rgba(100, 255, 218, 0.3);
+            border-radius: 25px;
+            color: #64ffda;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-family: 'Inter', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .crystal-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(100, 255, 218, 0.2);
+            background: linear-gradient(135deg, rgba(100, 255, 218, 0.2), rgba(124, 77, 255, 0.2));
+        }
+
+        .crystal-btn.primary {
+            background: linear-gradient(135deg, #64ffda, #7c4dff);
+            color: #000;
+            font-weight: 600;
+        }
+
+        .crystal-btn.primary:hover {
+            box-shadow: 0 15px 30px rgba(100, 255, 218, 0.4);
+            transform: translateY(-3px) scale(1.05);
+        }
+
+        /* Right Panel - Templates & Examples */
+        .template-matrix {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .template-card {
+            background: linear-gradient(135deg, rgba(255, 107, 157, 0.05), rgba(124, 77, 255, 0.05));
+            border: 1px solid rgba(255, 107, 157, 0.2);
+            border-radius: 25px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .template-card:hover {
+            transform: translateX(-10px) scale(1.02);
+            background: linear-gradient(135deg, rgba(255, 107, 157, 0.1), rgba(124, 77, 255, 0.1));
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .template-tag {
+            display: inline-block;
+            background: rgba(255, 107, 157, 0.2);
+            color: #ff6b9d;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .template-title {
+            font-weight: 600;
+            color: #ff6b9d;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .template-preview {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.4;
+            font-style: italic;
+        }
+
+        /* Floating Elements */
+        .floating-enhancement {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #64ffda, #7c4dff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(100, 255, 218, 0.3);
+        }
+
+        .floating-enhancement:hover {
+            transform: scale(1.1) rotate(10deg);
+            box-shadow: 0 20px 50px rgba(100, 255, 218, 0.5);
+        }
+
+        .enhancement-icon {
+            font-size: 1.5rem;
+            color: #000;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .main-canvas {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .quantum-nav {
+                gap: 15px;
+            }
+            
+            .nav-orb {
+                width: 60px;
+                height: 60px;
+                font-size: 0.7rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .main-canvas {
+                margin-top: 180px;
+                padding: 20px 10px;
+            }
+            
+            .prompt-weaver {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Quantum Background Field -->
+    <div class="quantum-field" id="quantumField"></div>
+
+    <div class="weaver-container">
+        <!-- Floating Header -->
+        <header class="quantum-header">
+            <div class="header-content">
+                <div class="logo">Quantum Prompt Weaver</div>
+                <nav class="quantum-nav">
+                    <div class="nav-orb" data-section="techniques">
+                        <span>Prompt<br>Techniques</span>
+                    </div>
+                    <div class="nav-orb" data-section="weaver">
+                        <span>AI<br>Weaver</span>
+                    </div>
+                    <div class="nav-orb" data-section="templates">
+                        <span>Smart<br>Templates</span>
+                    </div>
+                    <div class="nav-orb" data-section="examples">
+                        <span>Live<br>Examples</span>
+                    </div>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Canvas -->
+        <main class="main-canvas">
+            <!-- Left Panel: Technique Constellation -->
+            <section class="technique-constellation">
+                <div class="technique-bubble active" data-technique="chain-of-thought">
+                    <div class="technique-title">🧠 Chain-of-Thought</div>
+                    <div class="technique-desc">Guide Claude through step-by-step reasoning for complex problems</div>
+                </div>
+                
+                <div class="technique-bubble" data-technique="role-playing">
+                    <div class="technique-title">🎭 Role-Playing</div>
+                    <div class="technique-desc">Assign specific personas and expertise to Claude</div>
+                </div>
+                
+                <div class="technique-bubble" data-technique="few-shot">
+                    <div class="technique-title">🎯 Few-Shot Examples</div>
+                    <div class="technique-desc">Provide examples to demonstrate desired output format</div>
+                </div>
+                
+                <div class="technique-bubble" data-technique="structured-output">
+                    <div class="technique-title">📋 Structured Output</div>
+                    <div class="technique-desc">Request specific formats like XML, JSON, or markdown</div>
+                </div>
+                
+                <div class="technique-bubble" data-technique="context-setting">
+                    <div class="technique-title">🌍 Context Setting</div>
+                    <div class="technique-desc">Provide relevant background information and constraints</div>
+                </div>
+                
+                <div class="technique-bubble" data-technique="iterative">
+                    <div class="technique-title">🔄 Iterative Refinement</div>
+                    <div class="technique-desc">Build prompts through multiple conversation turns</div>
+                </div>
+            </section>
+
+            <!-- Center Panel: Prompt Weaver -->
+            <section class="prompt-weaver">
+                <div class="weaver-header">
+                    <h2 class="weaver-title">Neural Prompt Synthesizer</h2>
+                    <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem;">Craft intelligent prompts that resonate with Claude's neural architecture</p>
+                </div>
+                
+                <div class="prompt-canvas">
+                    <div class="enhancement-layer"></div>
+                    <textarea 
+                        class="prompt-input" 
+                        id="promptInput"
+                        placeholder="Begin weaving your prompt... 
+
+Try starting with:
+• 'You are an expert in...'
+• 'Please analyze this step by step...'
+• 'Acting as a [role], help me...'
+• 'Here are some examples: [examples]. Now...'
+
+The quantum field awaits your creativity..."
+                    ></textarea>
+                </div>
+                
+                <div class="action-crystals">
+                    <button class="crystal-btn" id="analyzeBtn">🔍 Analyze</button>
+                    <button class="crystal-btn" id="enhanceBtn">✨ Enhance</button>
+                    <button class="crystal-btn primary" id="testBtn">🚀 Test with Claude</button>
+                    <button class="crystal-btn" id="saveBtn">💎 Save Template</button>
+                </div>
+            </section>
+
+            <!-- Right Panel: Template Matrix -->
+            <section class="template-matrix">
+                <div class="template-card" data-template="coding-assistant">
+                    <div class="template-tag">CODING</div>
+                    <div class="template-title">Expert Code Assistant</div>
+                    <div class="template-preview">"You are a senior software engineer specializing in [language]. Analyze this code and provide detailed explanations with best practices..."</div>
+                </div>
+                
+                <div class="template-card" data-template="creative-writing">
+                    <div class="template-tag">CREATIVE</div>
+                    <div class="template-title">Creative Writing Partner</div>
+                    <div class="template-preview">"As a creative writing mentor, help me develop a story with rich characters. Focus on showing rather than telling..."</div>
+                </div>
+                
+                <div class="template-card" data-template="research-analyst">
+                    <div class="template-tag">RESEARCH</div>
+                    <div class="template-title">Research Synthesizer</div>
+                    <div class="template-preview">"Act as a research analyst. Synthesize information from multiple sources and present findings in a structured format..."</div>
+                </div>
+                
+                <div class="template-card" data-template="problem-solver">
+                    <div class="template-tag">ANALYSIS</div>
+                    <div class="template-title">Strategic Problem Solver</div>
+                    <div class="template-preview">"Approach this problem methodically: 1) Define the core issue 2) Identify constraints 3) Generate solutions 4) Evaluate options..."</div>
+                </div>
+                
+                <div class="template-card" data-template="learning-tutor">
+                    <div class="template-tag">EDUCATION</div>
+                    <div class="template-title">Adaptive Learning Tutor</div>
+                    <div class="template-preview">"As an expert tutor, explain this concept at a [beginner/intermediate/advanced] level using analogies and examples..."</div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Floating Enhancement Button -->
+        <div class="floating-enhancement" id="floatingEnhance">
+            <div class="enhancement-icon">⚡</div>
+        </div>
+    </div>
+
+    <script>
+        // Quantum Field Particle System
+        class QuantumField {
+            constructor() {
+                this.container = document.getElementById('quantumField');
+                this.particles = [];
+                this.init();
+            }
+
+            init() {
+                for (let i = 0; i < 50; i++) {
+                    this.createParticle();
+                }
+            }
+
+            createParticle() {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                const x = Math.random() * window.innerWidth;
+                const y = Math.random() * window.innerHeight;
+                const delay = Math.random() * 6;
+                
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.animationDelay = delay + 's';
+                
+                this.container.appendChild(particle);
+                this.particles.push(particle);
+
+                // Remove and recreate particle after animation
+                setTimeout(() => {
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                        this.createParticle();
+                    }
+                }, 6000 + delay * 1000);
+            }
+        }
+
+        // Prompt Enhancement Engine
+        class PromptEnhancer {
+            constructor() {
+                this.techniques = {
+                    'chain-of-thought': {
+                        prefix: 'Let\'s think through this step by step:\n\n',
+                        suffix: '\n\nPlease show your reasoning process.',
+                        description: 'Adds step-by-step reasoning structure'
+                    },
+                    'role-playing': {
+                        prefix: 'You are an expert ',
+                        suffix: '. Please provide detailed, professional guidance.',
+                        description: 'Assigns expert persona to Claude'
+                    },
+                    'few-shot': {
+                        prefix: 'Here are some examples:\n\nExample 1: [provide example]\nExample 2: [provide example]\n\nNow, ',
+                        suffix: '',
+                        description: 'Provides examples for pattern recognition'
+                    },
+                    'structured-output': {
+                        prefix: 'Please format your response using this structure:\n\n',
+                        suffix: '\n\nMaintain this exact format in your response.',
+                        description: 'Requests specific output formatting'
+                    },
+                    'context-setting': {
+                        prefix: 'Context: ',
+                        suffix: '\n\nGiven this context, please provide your analysis.',
+                        description: 'Sets relevant background information'
+                    },
+                    'iterative': {
+                        prefix: 'This is part of an ongoing conversation. ',
+                        suffix: ' Please build on our previous discussion.',
+                        description: 'References conversation history'
+                    }
+                };
+
+                this.templates = {
+                    'coding-assistant': 'You are a senior software engineer with expertise in modern development practices. Please analyze the following code and provide:\n1. Code review with specific feedback\n2. Best practices recommendations\n3. Performance optimization suggestions\n4. Security considerations\n\nCode to review:\n[INSERT CODE HERE]',
+                    
+                    'creative-writing': 'As a creative writing mentor with experience in literary fiction, please help me develop this story concept. Focus on:\n1. Character development and motivation\n2. Plot structure and pacing\n3. Dialogue authenticity\n4. Descriptive language that shows rather than tells\n\nStory concept:\n[INSERT CONCEPT HERE]',
+                    
+                    'research-analyst': 'Acting as a research analyst, please synthesize information about [TOPIC] and provide:\n1. Executive summary\n2. Key findings with supporting evidence\n3. Analysis of trends and patterns\n4. Implications and recommendations\n5. Areas requiring further research\n\nPlease structure your response with clear headings and bullet points.',
+                    
+                    'problem-solver': 'Let\'s approach this problem systematically:\n\n1. **Problem Definition**: Clearly state the core issue\n2. **Constraint Analysis**: Identify limitations and requirements\n3. **Solution Generation**: Brainstorm multiple approaches\n4. **Evaluation Matrix**: Compare solutions against criteria\n5. **Implementation Plan**: Outline actionable next steps\n\nProblem to solve:\n[INSERT PROBLEM HERE]',
+                    
+                    'learning-tutor': 'As an expert educator, please explain [CONCEPT] at a [LEVEL] level. Structure your explanation with:\n1. Simple definition in plain language\n2. Real-world analogies\n3. Step-by-step breakdown\n4. Common misconceptions to avoid\n5. Practice questions or exercises\n\nTailor the complexity to someone who is [EXPERIENCE LEVEL] in this subject.'
+                };
+
+                this.bindEvents();
+            }
+
+            bindEvents() {
+                // Navigation orbs
+                document.querySelectorAll('.nav-orb').forEach(orb => {
+                    orb.addEventListener('click', (e) => {
+                        const section = e.currentTarget.dataset.section;
+                        this.navigateToSection(section);
+                    });
+                });
+
+                // Technique bubbles
+                document.querySelectorAll('.technique-bubble').forEach(bubble => {
+                    bubble.addEventListener('click', (e) => {
+                        this.selectTechnique(e.currentTarget);
+                    });
+                });
+
+                // Template cards
+                document.querySelectorAll('.template-card').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        this.loadTemplate(e.currentTarget.dataset.template);
+                    });
+                });
+
+                // Action buttons
+                document.getElementById('analyzeBtn').addEventListener('click', () => this.analyzePrompt());
+                document.getElementById('enhanceBtn').addEventListener('click', () => this.enhancePrompt());
+                document.getElementById('testBtn').addEventListener('click', () => this.testPrompt());
+                document.getElementById('saveBtn').addEventListener('click', () => this.saveTemplate());
+                document.getElementById('floatingEnhance').addEventListener('click', () => this.quickEnhance());
+
+                // Real-time prompt analysis
+                document.getElementById('promptInput').addEventListener('input', (e) => {
+                    this.realTimeAnalysis(e.target.value);
+                });
+            }
+
+            selectTechnique(bubble) {
+                // Remove active class from all bubbles
+                document.querySelectorAll('.technique-bubble').forEach(b => b.classList.remove('active'));
+                
+                // Add active class to selected bubble
+                bubble.classList.add('active');
+                
+                // Apply technique enhancement
+                const technique = bubble.dataset.technique;
+                this.applyTechnique(technique);
+            }
+
+            applyTechnique(technique) {
+                const promptInput = document.getElementById('promptInput');
+                const currentPrompt = promptInput.value;
+                const techniqueData = this.techniques[technique];
+                
+                if (techniqueData && currentPrompt) {
+                    const enhancedPrompt = techniqueData.prefix + currentPrompt + techniqueData.suffix;
+                    promptInput.value = enhancedPrompt;
+                    this.showNotification(`Applied ${technique.replace('-', ' ')} technique!`, 'success');
+                }
+            }
+
+            loadTemplate(templateKey) {
+                const template = this.templates[templateKey];
+                if (template) {
+                    document.getElementById('promptInput').value = template;
+                    this.showNotification('Template loaded successfully!', 'success');
+                }
+            }
+
+            analyzePrompt() {
+                const prompt = document.getElementById('promptInput').value;
+                if (!prompt.trim()) {
+                    this.showNotification('Please enter a prompt to analyze', 'warning');
+                    return;
+                }
+
+                const analysis = this.performPromptAnalysis(prompt);
+                this.displayAnalysis(analysis);
+            }
+
+            performPromptAnalysis(prompt) {
+                const analysis = {
+                    length: prompt.length,
+                    clarity: this.assessClarity(prompt),
+                    structure: this.assessStructure(prompt),
+                    techniques: this.identifyTechniques(prompt),
+                    suggestions: this.generateSuggestions(prompt)
+                };
+
+                return analysis;
+            }
+
+            assessClarity(prompt) {
+                let score = 70; // Base score
+                
+                // Check for question words
+                if (/\b(what|how|why|when|where|which|who)\b/i.test(prompt)) score += 10;
+                
+                // Check for specific instructions
+                if (/\b(please|analyze|explain|provide|create|generate)\b/i.test(prompt)) score += 10;
+                
+                // Check for context setting
+                if (prompt.includes('context') || prompt.includes('background')) score += 5;
+                
+                // Penalize vague language
+                if (/\b(something|anything|stuff|things)\b/i.test(prompt)) score -= 15;
+                
+                return Math.min(100, Math.max(0, score));
+            }
+
+            assessStructure(prompt) {
+                let score = 50;
+                
+                // Check for numbered lists
+                if (/\d+\.|1\)|•/g.test(prompt)) score += 20;
+                
+                // Check for clear sections
+                if (prompt.includes(':') || prompt.includes('\n\n')) score += 15;
+                
+                // Check for role definition
+                if (/\b(you are|act as|as a|role)\b/i.test(prompt)) score += 15;
+                
+                return Math.min(100, score);
+            }
+
+            identifyTechniques(prompt) {
+                const foundTechniques = [];
+                
+                if (/step.by.step|think through|reasoning/i.test(prompt)) {
+                    foundTechniques.push('Chain-of-Thought');
+                }
+                
+                if (/you are|act as|as a|expert|specialist/i.test(prompt)) {
+                    foundTechniques.push('Role-Playing');
+                }
+                
+                if (/example|for instance|such as/i.test(prompt)) {
+                    foundTechniques.push('Few-Shot Examples');
+                }
+                
+                if (/format|structure|json|xml|markdown/i.test(prompt)) {
+                    foundTechniques.push('Structured Output');
+                }
+                
+                return foundTechniques;
+            }
+
+            generateSuggestions(prompt) {
+                const suggestions = [];
+                
+                if (prompt.length < 50) {
+                    suggestions.push('Consider adding more context and specific details');
+                }
+                
+                if (!prompt.includes('?') && !/\b(please|analyze|explain)\b/i.test(prompt)) {
+                    suggestions.push('Add a clear question or instruction');
+                }
+                
+                if (!/\b(you are|act as)\b/i.test(prompt)) {
+                    suggestions.push('Consider defining Claude\'s role or expertise');
+                }
+                
+                if (!prompt.includes('\n') && prompt.length > 100) {
+                    suggestions.push('Break into multiple paragraphs for better readability');
+                }
+                
+                return suggestions;
+            }
+
+            displayAnalysis(analysis) {
+                const analysisHTML = `
+                    <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                               background: linear-gradient(135deg, rgba(16, 20, 40, 0.95), rgba(30, 30, 60, 0.95)); 
+                               backdrop-filter: blur(20px); border: 1px solid rgba(100, 255, 218, 0.3); 
+                               border-radius: 25px; padding: 30px; max-width: 500px; z-index: 10000; color: white;">
+                        <h3 style="color: #64ffda; margin-bottom: 20px; font-family: Orbitron;">🔍 Prompt Analysis</h3>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <strong>Clarity Score:</strong> 
+                            <div style="background: rgba(0,0,0,0.3); border-radius: 10px; padding: 5px; margin-top: 5px;">
+                                <div style="background: linear-gradient(90deg, #64ffda, #7c4dff); height: 8px; border-radius: 5px; width: ${analysis.clarity}%;"></div>
+                            </div>
+                            <span style="font-size: 0.9rem; color: rgba(255,255,255,0.7);">${analysis.clarity}/100</span>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <strong>Structure Score:</strong>
+                            <div style="background: rgba(0,0,0,0.3); border-radius: 10px; padding: 5px; margin-top: 5px;">
+                                <div style="background: linear-gradient(90deg, #ff6b9d, #7c4dff); height: 8px; border-radius: 5px; width: ${analysis.structure}%;"></div>
+                            </div>
+                            <span style="font-size: 0.9rem; color: rgba(255,255,255,0.7);">${analysis.structure}/100</span>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <strong>Detected Techniques:</strong>
+                            <div style="margin-top: 8px;">
+                                ${analysis.techniques.length > 0 ? 
+                                    analysis.techniques.map(t => `<span style="background: rgba(100, 255, 218, 0.2); color: #64ffda; padding: 4px 12px; border-radius: 15px; font-size: 0.8rem; margin-right: 8px; margin-bottom: 5px; display: inline-block;">${t}</span>`).join('') : 
+                                    '<span style="color: rgba(255,255,255,0.5); font-style: italic;">No specific techniques detected</span>'
+                                }
+                            </div>
+                        </div>
+                        
+                        ${analysis.suggestions.length > 0 ? `
+                        <div style="margin-bottom: 20px;">
+                            <strong>💡 Suggestions:</strong>
+                            <ul style="margin-top: 8px; padding-left: 20px;">
+                                ${analysis.suggestions.map(s => `<li style="color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-bottom: 5px;">${s}</li>`).join('')}
+                            </ul>
+                        </div>
+                        ` : ''}
+                        
+                        <button onclick="this.parentElement.remove()" 
+                                style="background: linear-gradient(135deg, #64ffda, #7c4dff); border: none; color: black; 
+                                       padding: 10px 20px; border-radius: 15px; cursor: pointer; font-weight: 500; 
+                                       margin-top: 10px; width: 100%;">
+                            Close Analysis
+                        </button>
+                    </div>
+                `;
+                
+                document.body.insertAdjacentHTML('beforeend', analysisHTML);
+            }
+
+            enhancePrompt() {
+                const promptInput = document.getElementById('promptInput');
+                const currentPrompt = promptInput.value;
+                
+                if (!currentPrompt.trim()) {
+                    this.showNotification('Please enter a prompt to enhance', 'warning');
+                    return;
+                }
+
+                const enhanced = this.performEnhancement(currentPrompt);
+                promptInput.value = enhanced;
+                this.showNotification('Prompt enhanced with AI techniques!', 'success');
+            }
+
+            performEnhancement(prompt) {
+                let enhanced = prompt;
+
+                // Add role-playing if not present
+                if (!/\b(you are|act as|as a)\b/i.test(enhanced)) {
+                    enhanced = 'You are an expert assistant. ' + enhanced;
+                }
+
+                // Add structure request if prompt is complex
+                if (enhanced.length > 200 && !enhanced.includes('format') && !enhanced.includes('structure')) {
+                    enhanced += '\n\nPlease structure your response with clear headings and bullet points where appropriate.';
+                }
+
+                // Add step-by-step for complex requests
+                if (/\b(analyze|solve|explain|create)\b/i.test(enhanced) && !enhanced.includes('step')) {
+                    enhanced += '\n\nPlease think through this step by step.';
+                }
+
+                // Add examples request for creative tasks
+                if (/\b(write|create|design|generate)\b/i.test(enhanced) && !enhanced.includes('example')) {
+                    enhanced += '\n\nPlease provide specific examples to illustrate your points.';
+                }
+
+                return enhanced;
+            }
+
+            testPrompt() {
+                const prompt = document.getElementById('promptInput').value;
+                if (!prompt.trim()) {
+                    this.showNotification('Please enter a prompt to test', 'warning');
+                    return;
+                }
+
+                // Simulate testing with Claude
+                this.showTestingInterface(prompt);
+            }
+
+            showTestingInterface(prompt) {
+                const testHTML = `
+                    <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+                               background: rgba(0, 0, 0, 0.8); z-index: 10000; 
+                               display: flex; align-items: center; justify-content: center;">
+                        <div style="background: linear-gradient(135deg, rgba(16, 20, 40, 0.95), rgba(30, 30, 60, 0.95)); 
+                                   backdrop-filter: blur(20px); border: 1px solid rgba(100, 255, 218, 0.3); 
+                                   border-radius: 25px; padding: 40px; max-width: 800px; width: 90%; color: white;">
+                            <h3 style="color: #64ffda; margin-bottom: 20px; font-family: Orbitron;">🚀 Claude AI Test Environment</h3>
+                            
+                            <div style="background: rgba(0,0,0,0.3); border-radius: 15px; padding: 20px; margin-bottom: 20px;">
+                                <h4 style="color: #7c4dff; margin-bottom: 10px;">Your Prompt:</h4>
+                                <div style="color: rgba(255,255,255,0.8); line-height: 1.6; font-size: 0.95rem;">${prompt}</div>
+                            </div>
+                            
+                            <div style="background: rgba(0,0,0,0.3); border-radius: 15px; padding: 20px; margin-bottom: 20px;">
+                                <h4 style="color: #64ffda; margin-bottom: 10px;">Claude's Response:</h4>
+                                <div id="simulatedResponse" style="color: rgba(255,255,255,0.8); line-height: 1.6; font-size: 0.95rem;">
+                                    <div style="color: #64ffda;">🤖 Analyzing your prompt...</div>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 15px; justify-content: center;">
+                                <button onclick="this.closest('div').parentElement.remove()" 
+                                        style="background: linear-gradient(135deg, rgba(100, 255, 218, 0.2), rgba(124, 77, 255, 0.2)); 
+                                               border: 1px solid rgba(100, 255, 218, 0.3); color: #64ffda; 
+                                               padding: 12px 25px; border-radius: 20px; cursor: pointer;">
+                                    Close Test
+                                </button>
+                                <button onclick="navigator.clipboard.writeText('${prompt.replace(/'/g, "\\'")}'); this.textContent='Copied!'" 
+                                        style="background: linear-gradient(135deg, #64ffda, #7c4dff); border: none; color: black; 
+                                               padding: 12px 25px; border-radius: 20px; cursor: pointer; font-weight: 500;">
+                                    Copy Prompt
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.insertAdjacentHTML('beforeend', testHTML);
+                
+                // Simulate Claude's response
+                setTimeout(() => {
+                    const responseEl = document.getElementById('simulatedResponse');
+                    if (responseEl) {
+                        responseEl.innerHTML = `
+                            <div style="margin-bottom: 15px;">
+                                <strong>✅ Prompt Quality Assessment:</strong><br>
+                                Your prompt demonstrates good structure and clarity. Claude would be able to understand and respond effectively to this request.
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <strong>🎯 Expected Response Type:</strong><br>
+                                Based on your prompt, Claude would likely provide a ${this.predictResponseType(prompt)} response with detailed explanations and practical examples.
+                            </div>
+                            <div>
+                                <em>Note: This is a simulation. To get Claude's actual response, copy your prompt and use it in a real conversation with Claude AI.</em>
+                            </div>
+                        `;
+                    }
+                }, 2000);
+            }
+
+            predictResponseType(prompt) {
+                if (/\b(code|program|script)\b/i.test(prompt)) return 'technical/coding';
+                if (/\b(write|story|creative)\b/i.test(prompt)) return 'creative writing';
+                if (/\b(analyze|research|study)\b/i.test(prompt)) return 'analytical';
+                if (/\b(explain|teach|learn)\b/i.test(prompt)) return 'educational';
+                if (/\b(solve|problem|issue)\b/i.test(prompt)) return 'problem-solving';
+                return 'comprehensive informational';
+            }
+
+            saveTemplate() {
+                const prompt = document.getElementById('promptInput').value;
+                if (!prompt.trim()) {
+                    this.showNotification('Please enter a prompt to save as template', 'warning');
+                    return;
+                }
+
+                const templateName = prompt.substring(0, 50) + '...';
+                const savedTemplates = JSON.parse(localStorage.getItem('quantumPromptTemplates') || '[]');
+                
+                savedTemplates.push({
+                    id: Date.now(),
+                    name: templateName,
+                    content: prompt,
+                    created: new Date().toLocaleDateString()
+                });
+
+                localStorage.setItem('quantumPromptTemplates', JSON.stringify(savedTemplates));
+                this.showNotification('Template saved successfully!', 'success');
+            }
+
+            quickEnhance() {
+                const promptInput = document.getElementById('promptInput');
+                const currentPrompt = promptInput.value;
+
+                if (!currentPrompt.trim()) {
+                    // Show quick start suggestions
+                    this.showQuickStartGuide();
+                    return;
+                }
+
+                // Apply quick enhancement
+                const quickEnhanced = this.applyQuickEnhancements(currentPrompt);
+                promptInput.value = quickEnhanced;
+                this.showNotification('⚡ Quick enhancement applied!', 'success');
+            }
+
+            applyQuickEnhancements(prompt) {
+                let enhanced = prompt;
+
+                // Add polite language
+                if (!enhanced.includes('please') && !enhanced.includes('kindly')) {
+                    enhanced = enhanced.replace(/^/, 'Please ');
+                }
+
+                // Add specificity request
+                if (!enhanced.includes('specific') && !enhanced.includes('detailed')) {
+                    enhanced += ' Please be specific and provide detailed examples.';
+                }
+
+                return enhanced;
+            }
+
+            showQuickStartGuide() {
+                const guideHTML = `
+                    <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                               background: linear-gradient(135deg, rgba(16, 20, 40, 0.95), rgba(30, 30, 60, 0.95)); 
+                               backdrop-filter: blur(20px); border: 1px solid rgba(100, 255, 218, 0.3); 
+                               border-radius: 25px; padding: 30px; max-width: 600px; z-index: 10000; color: white;">
+                        <h3 style="color: #64ffda; margin-bottom: 20px; font-family: Orbitron;">⚡ Quick Start Guide</h3>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <h4 style="color: #7c4dff; margin-bottom: 10px;">Essential Prompt Starters:</h4>
+                            <div style="display: grid; gap: 10px;">
+                                <button onclick="this.parentElement.parentElement.parentElement.remove(); document.getElementById('promptInput').value = 'You are an expert in [FIELD]. Please help me understand [TOPIC] by explaining it step by step with practical examples.'" 
+                                        style="background: rgba(100, 255, 218, 0.1); border: 1px solid rgba(100, 255, 218, 0.3); color: #64ffda; padding: 10px; border-radius: 10px; cursor: pointer; text-align: left;">
+                                    🎓 Learning & Explanation
+                                </button>
+                                <button onclick="this.parentElement.parentElement.parentElement.remove(); document.getElementById('promptInput').value = 'As a professional [ROLE], please analyze the following and provide detailed recommendations: [CONTENT]'" 
+                                        style="background: rgba(124, 77, 255, 0.1); border: 1px solid rgba(124, 77, 255, 0.3); color: #7c4dff; padding: 10px; border-radius: 10px; cursor: pointer; text-align: left;">
+                                    🔍 Analysis & Review
+                                </button>
+                                <button onclick="this.parentElement.parentElement.parentElement.remove(); document.getElementById('promptInput').value = 'Help me create [ITEM] that meets these requirements: [LIST REQUIREMENTS]. Please provide multiple options and explain your reasoning.'" 
+                                        style="background: rgba(255, 107, 157, 0.1); border: 1px solid rgba(255, 107, 157, 0.3); color: #ff6b9d; padding: 10px; border-radius: 10px; cursor: pointer; text-align: left;">
+                                    🎨 Creative & Design
+                                </button>
+                                <button onclick="this.parentElement.parentElement.parentElement.remove(); document.getElementById('promptInput').value = 'I need to solve this problem: [DESCRIBE PROBLEM]. Please approach this systematically by: 1) Identifying key issues 2) Generating solutions 3) Evaluating options 4) Recommending next steps.'" 
+                                        style="background: rgba(100, 255, 218, 0.1); border: 1px solid rgba(100, 255, 218, 0.3); color: #64ffda; padding: 10px; border-radius: 10px; cursor: pointer; text-align: left;">
+                                    🛠️ Problem Solving
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <button onclick="this.parentElement.remove()" 
+                                style="background: linear-gradient(135deg, #64ffda, #7c4dff); border: none; color: black; 
+                                       padding: 12px 25px; border-radius: 15px; cursor: pointer; font-weight: 500; width: 100%;">
+                            Close Guide
+                        </button>
+                    </div>
+                `;
+                
+                document.body.insertAdjacentHTML('beforeend', guideHTML);
+            }
+
+            realTimeAnalysis(prompt) {
+                // Visual feedback based on prompt quality
+                const canvas = document.querySelector('.prompt-canvas');
+                const wordCount = prompt.trim().split(/\s+/).length;
+                
+                if (wordCount < 5) {
+                    canvas.style.borderColor = 'rgba(255, 107, 157, 0.3)';
+                } else if (wordCount < 20) {
+                    canvas.style.borderColor = 'rgba(255, 193, 7, 0.3)';
+                } else {
+                    canvas.style.borderColor = 'rgba(100, 255, 218, 0.3)';
+                }
+            }
+
+            navigateToSection(section) {
+                // Smooth scroll to sections (simplified for demo)
+                this.showNotification(`Navigating to ${section}...`, 'info');
+            }
+
+            showNotification(message, type = 'info') {
+                const colors = {
+                    success: '#64ffda',
+                    warning: '#ff9800',
+                    error: '#f44336',
+                    info: '#7c4dff'
+                };
+
+                const notification = document.createElement('div');
+                notification.innerHTML = `
+                    <div style="position: fixed; top: 20px; right: 20px; z-index: 10001; 
+                               background: linear-gradient(135deg, rgba(16, 20, 40, 0.95), rgba(30, 30, 60, 0.95)); 
+                               backdrop-filter: blur(20px); border: 1px solid ${colors[type]}; 
+                               border-radius: 15px; padding: 15px 25px; color: white; 
+                               transform: translateX(100%); transition: transform 0.3s ease;">
+                        ${message}
+                    </div>
+                `;
+
+                document.body.appendChild(notification);
+                const notifEl = notification.firstElementChild;
+
+                setTimeout(() => notifEl.style.transform = 'translateX(0)', 100);
+                setTimeout(() => {
+                    notifEl.style.transform = 'translateX(100%)';
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            }
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            new QuantumField();
+            new PromptEnhancer();
+            
+            // Add some dynamic effects
+            const header = document.querySelector('.quantum-header');
+            let lastScroll = 0;
+            
+            window.addEventListener('scroll', () => {
+                const currentScroll = window.pageYOffset;
+                if (currentScroll > lastScroll) {
+                    header.style.transform = 'translateY(-100%)';
+                } else {
+                    header.style.transform = 'translateY(0)';
+                }
+                lastScroll = currentScroll;
+            });
+        });
+    </script>
+</body>
+</html>
